@@ -455,12 +455,12 @@ function parseDrugFile(text) {
  *
  * 延遲邏輯：
  * - 連續處方箋（totalRefills >= 2）
- * - 調劑序號 2 或 3 代表第二、三次領藥
- * - 預期領藥截止日 = 處方日期 + 給藥日份 × 調劑序號
- * - 若調劑日期 > 預期截止日 → 延遲
+ * - 第一回延遲：調劑序號=1，且調劑日期 > 處方日期
+ * - 第二回延遲：調劑序號=2，且調劑日期 > 處方日期 + 給藥日份×1
+ * - 結果依延遲天數由大到小排序
  *
- * 「第一回延遲」= 調劑序號=2 且延遲（第2次來領藥時延遲）
- * 「第二回延遲」= 調劑序號=3 且延遲（第3次來領藥時延遲）
+ * 寄單順延說明：
+ * - 順延後最早領藥時間 = 調劑日期 + 給藥日份×1 - 10天
  */
 function detectDelayedRefills(prescriptions, filterDelay1, filterDelay2) {
     const delayed = [];
@@ -470,9 +470,9 @@ function detectDelayedRefills(prescriptions, filterDelay1, filterDelay2) {
         const refillSeq = parseInt(rx.refillSeq, 10);
         const daysPerRefill = parseInt(rx.daysPerRefill, 10);
 
-        // 只處理連續處方箋（可調劑次數 >= 2）且調劑序號 >= 2
+        // 只處理連續處方箋（可調劑次數 >= 2）
         if (isNaN(totalRefills) || totalRefills < 2) continue;
-        if (isNaN(refillSeq) || refillSeq < 2) continue;
+        if (isNaN(refillSeq)) continue;
         if (isNaN(daysPerRefill) || daysPerRefill <= 0) continue;
 
         const prescriptionDateObj = rocToDate(rx.prescriptionDate);
@@ -480,29 +480,42 @@ function detectDelayedRefills(prescriptions, filterDelay1, filterDelay2) {
 
         if (!prescriptionDateObj || !dispensingDateObj) continue;
 
-        // 預期最晚領藥日 = 處方日期 + 給藥日份 × 調劑序號
-        // 例如第2次領藥（調劑序號=2）：處方日 + 28天 × 2 = 第56天應領完
-        const expectedDeadline = addDays(prescriptionDateObj, daysPerRefill * refillSeq);
+        let expectedDeadline = null;
+        let delayType = 0;
+
+        if (refillSeq === 1) {
+            // 第一回延遲：調劑序號=1，調劑日期 > 處方日期
+            expectedDeadline = prescriptionDateObj;
+            delayType = 1;
+        } else if (refillSeq === 2) {
+            // 第二回延遲：調劑序號=2，調劑日期 > 處方日期 + 給藥日份×1
+            expectedDeadline = addDays(prescriptionDateObj, daysPerRefill);
+            delayType = 2;
+        } else {
+            continue; // 只處理序號 1 和 2
+        }
 
         // 計算延遲天數
         const delayDays = daysBetween(expectedDeadline, dispensingDateObj);
 
         if (delayDays > 0) {
-            // 判斷延遲類型
-            const delayType = refillSeq - 1; // 調劑序號2→第一回延遲, 序號3→第二回延遲
-
             // 根據篩選條件過濾
             if (delayType === 1 && !filterDelay1) continue;
             if (delayType === 2 && !filterDelay2) continue;
+
+            // 順延後最早領藥時間 = 調劑日期 + 給藥日份×1 - 10天
+            const postponedEarliestDate = addDays(dispensingDateObj, daysPerRefill - 10);
 
             delayed.push({
                 ...rx,
                 delayType,                    // 1=第一回延遲, 2=第二回延遲
                 delayDays,                    // 延遲天數
                 expectedDeadline,             // 預期領藥截止日
+                postponedEarliestDate,        // 順延後最早領藥時間
                 prescriptionDateObj,          // 處方日期 Date 物件
                 dispensingDateObj,             // 調劑日期 Date 物件
                 expectedDeadlineStr: formatDate(expectedDeadline),
+                postponedEarliestDateStr: formatDate(postponedEarliestDate),
                 prescriptionDateStr: formatRocDate(rx.prescriptionDate),
                 dispensingDateStr: formatRocDate(rx.dispensingDate)
             });
@@ -604,17 +617,14 @@ function renderImportTable(records) {
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>身分證字號</th>
                         <th>姓名</th>
-                        <th>身分證號</th>
                         <th>延遲類型</th>
-                        <th>處方日期</th>
-                        <th>調劑序號</th>
-                        <th>可調劑次數</th>
-                        <th>給藥日份</th>
-                        <th>預期領藥截止</th>
-                        <th>實際調劑日期</th>
+                        <th>寄單順延說明</th>
                         <th>延遲天數</th>
-                        <th>ICD碼</th>
+                        <th>處方日期</th>
+                        <th>調劑日期</th>
+                        <th>給藥日份</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -623,21 +633,19 @@ function renderImportTable(records) {
         const delayTypeLabel = r.delayType === 1 ? '第一回延遲' : '第二回延遲';
         const delayTypeClass = r.delayType === 1 ? 'badge-warn1' : 'badge-warn2';
         const severityClass = r.delayDays >= 14 ? 'severity-high' : r.delayDays >= 7 ? 'severity-mid' : '';
+        const postponeNote = `上回晚領，本次最早領藥時間順延至${r.postponedEarliestDateStr}`;
 
         html += `
                     <tr class="${severityClass}">
                         <td>${idx + 1}</td>
-                        <td><strong>${r.name}</strong></td>
                         <td class="mono">${maskId(r.idNumber)}</td>
+                        <td><strong>${r.name}</strong></td>
                         <td><span class="badge ${delayTypeClass}">${delayTypeLabel}</span></td>
-                        <td>${r.prescriptionDateStr}</td>
-                        <td class="center">${r.refillSeq}</td>
-                        <td class="center">${r.totalRefills}</td>
-                        <td class="center">${r.daysPerRefill}</td>
-                        <td>${r.expectedDeadlineStr}</td>
-                        <td>${r.dispensingDateStr}</td>
+                        <td class="postpone-note">${postponeNote}</td>
                         <td class="center"><strong class="delay-num">${r.delayDays} 天</strong></td>
-                        <td class="mono">${r.icd1}${r.icd2 ? ', ' + r.icd2 : ''}</td>
+                        <td>${r.prescriptionDateStr}</td>
+                        <td>${r.dispensingDateStr}</td>
+                        <td class="center">${r.daysPerRefill}</td>
                     </tr>`;
     });
 
@@ -702,20 +710,16 @@ function exportCsv() {
         filtered = filtered.filter(r => r.delayType === type);
     }
 
-    const headers = ['姓名', '身分證號', '延遲類型', '處方日期', '調劑序號', '可調劑次數', '給藥日份', '預期領藥截止', '實際調劑日期', '延遲天數', 'ICD碼一', 'ICD碼二'];
+    const headers = ['身分證字號', '姓名', '延遲類型', '寄單順延說明', '延遲天數', '處方日期', '調劑日期', '給藥日份'];
     const rows = filtered.map(r => [
-        r.name,
         r.idNumber,
+        r.name,
         r.delayType === 1 ? '第一回延遲' : '第二回延遲',
-        r.prescriptionDateStr,
-        r.refillSeq,
-        r.totalRefills,
-        r.daysPerRefill,
-        r.expectedDeadlineStr,
-        r.dispensingDateStr,
+        `上回晚領，本次最早領藥時間順延至${r.postponedEarliestDateStr}`,
         r.delayDays,
-        r.icd1,
-        r.icd2 || ''
+        r.prescriptionDateStr,
+        r.dispensingDateStr,
+        r.daysPerRefill
     ]);
 
     // BOM + CSV

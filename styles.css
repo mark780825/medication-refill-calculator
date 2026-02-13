@@ -638,6 +638,13 @@ h1 {
     font-size: 14px;
 }
 
+.postpone-note {
+    color: #c0392b;
+    font-weight: 600;
+    white-space: normal;
+    min-width: 200px;
+}
+
 .no-results {
     text-align: center;
     color: #888;
