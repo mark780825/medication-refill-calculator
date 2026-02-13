@@ -398,8 +398,8 @@ function parseDrugFile(text) {
         if (!line) continue;
 
         if (line.startsWith('^')) {
-            // 處方主檔行：去掉開頭的 ^ 和後面一個字元（分類碼）
-            const dataStr = line.substring(2); // 去掉 ^X（X 為分類碼字元）
+            // 處方主檔行：去掉開頭的 ^ 符號，保留完整身分證字號（首碼為英文字母）
+            const dataStr = line.substring(1); // 只去掉 ^
             const fields = dataStr.split(',');
 
             // 解析21個欄位
