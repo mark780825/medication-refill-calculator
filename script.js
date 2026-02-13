@@ -536,7 +536,7 @@ function handleImport() {
     const filterDelay2 = document.getElementById('filterDelay2').checked;
 
     if (!fileInput.files || fileInput.files.length === 0) {
-        alert('請選擇 DRUG2.txt 檔案');
+        alert('請選擇檔案');
         return;
     }
 
@@ -546,23 +546,37 @@ function handleImport() {
     }
 
     const file = fileInput.files[0];
-    const reader = new FileReader();
 
+    // 自動偵測編碼：先用 UTF-8 讀取，若出現亂碼（替換字元 U+FFFD）則改用 Big5
+    const reader = new FileReader();
     reader.onload = function(e) {
         const text = e.target.result;
 
-        // 解析檔案
-        const prescriptions = parseDrugFile(text);
+        // 檢查是否有亂碼（U+FFFD 替換字元）或中文姓名欄位不正常
+        const hasGarbled = text.includes('\uFFFD');
 
-        // 篩選延遲領藥
-        const delayed = detectDelayedRefills(prescriptions, filterDelay1, filterDelay2);
-        importedDelayedRecords = delayed;
-
-        // 顯示結果
-        displayImportResults(prescriptions.length, delayed);
+        if (hasGarbled) {
+            // UTF-8 解碼失敗，改用 Big5 重新讀取
+            const reader2 = new FileReader();
+            reader2.onload = function(e2) {
+                processImportedText(e2.target.result, filterDelay1, filterDelay2);
+            };
+            reader2.readAsText(file, 'Big5');
+        } else {
+            processImportedText(text, filterDelay1, filterDelay2);
+        }
     };
+    reader.readAsText(file, 'UTF-8');
+}
 
-    reader.readAsText(file, 'Big5'); // 健保申報檔通常使用 Big5 編碼
+/**
+ * 處理匯入的文字內容（編碼偵測後呼叫）
+ */
+function processImportedText(text, filterDelay1, filterDelay2) {
+    const prescriptions = parseDrugFile(text);
+    const delayed = detectDelayedRefills(prescriptions, filterDelay1, filterDelay2);
+    importedDelayedRecords = delayed;
+    displayImportResults(prescriptions.length, delayed);
 }
 
 /**
@@ -638,7 +652,7 @@ function renderImportTable(records) {
         html += `
                     <tr class="${severityClass}">
                         <td>${idx + 1}</td>
-                        <td class="mono">${maskId(r.idNumber)}</td>
+                        <td class="mono">${r.idNumber}</td>
                         <td><strong>${r.name}</strong></td>
                         <td><span class="badge ${delayTypeClass}">${delayTypeLabel}</span></td>
                         <td class="postpone-note">${postponeNote}</td>
