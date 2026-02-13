@@ -1,0 +1,361 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft JhengHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 32px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.input-section {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group input[type="number"] {
+    max-width: 200px;
+}
+
+.form-group input[type="date"] {
+    max-width: 300px;
+}
+
+.hint {
+    color: #888;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+#actualDatesSection {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #ddd;
+}
+
+#actualDatesSection h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+#calculateBtn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: block;
+    margin: 30px auto 0;
+}
+
+#calculateBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+#calculateBtn:active {
+    transform: translateY(0);
+}
+
+.results-section {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.results-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.info-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border-left: 4px solid #667eea;
+}
+
+.info-card p {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+}
+
+.info-card p:last-child {
+    margin-bottom: 0;
+}
+
+.gantt-container {
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.gantt-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    font-weight: 600;
+    font-size: 18px;
+    text-align: center;
+}
+
+.gantt-chart {
+    padding: 20px;
+    position: relative;
+}
+
+.timeline {
+    position: relative;
+    height: 40px;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+    margin-left: 80px; /* 對齊 gantt-label 的寬度 */
+}
+
+.timeline-marker {
+    position: absolute;
+    top: 0;
+    font-size: 12px;
+    color: #666;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.timeline-marker::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    width: 2px;
+    height: 8px;
+    background: #999;
+}
+
+.gantt-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.gantt-label {
+    width: 80px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.gantt-bars {
+    flex: 1;
+    position: relative;
+    height: 40px;
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.gantt-bar {
+    position: absolute;
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.gantt-bar.pickup {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    opacity: 0.9;
+}
+
+.gantt-bar.pickup.delayed {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gantt-bar.medicine {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    opacity: 0.7;
+}
+
+.gantt-bar.expired {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    opacity: 0.9;
+}
+
+.bar-label {
+    color: #333;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 0 3px white;
+}
+
+.gantt-marker.actual {
+    position: absolute;
+    top: -5px;
+    width: 4px;
+    height: 50px;
+    background: #ff6b6b;
+    transform: translateX(-2px);
+}
+
+.gantt-marker.actual::before {
+    content: '▼';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ff6b6b;
+    font-size: 12px;
+}
+
+.details-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.refill-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #4facfe;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.refill-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.refill-card.warning {
+    border-left-color: #f5576c;
+    background: #fff5f5;
+}
+
+.refill-card h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.refill-card p {
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.refill-card p:last-child {
+    margin-bottom: 0;
+}
+
+.delay-warning {
+    background: #f5576c;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .gantt-label {
+        width: 60px;
+        font-size: 12px;
+    }
+
+    .bar-label {
+        font-size: 10px;
+    }
+
+    .details-container {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group input[type="number"],
+    .form-group input[type="date"] {
+        max-width: 100%;
+    }
+}
