@@ -11,37 +11,91 @@
         <h1>台灣健保領藥計算機</h1>
         <p class="subtitle">慢性病連續處方箋領藥時間計算</p>
 
-        <div class="input-section">
-            <div class="form-group">
-                <label for="prescriptionDate">處方開立日期：</label>
-                <input type="date" id="prescriptionDate" required>
-            </div>
-
-            <div class="form-group">
-                <label for="daysPerRefill">每次領藥天數：</label>
-                <input type="number" id="daysPerRefill" min="28" max="30" value="28" required>
-                <span class="hint">(28-30天)</span>
-            </div>
-
-            <div class="form-group">
-                <label for="totalRefills">可領回數：</label>
-                <input type="number" id="totalRefills" min="1" max="3" value="3" required>
-                <span class="hint">(最多3回)</span>
-            </div>
-
-            <div id="actualDatesSection">
-                <h3>實際領藥日期</h3>
-                <div id="actualDatesInputs"></div>
-            </div>
-
-            <button id="calculateBtn">計算領藥時間</button>
+        <!-- 分頁導覽 -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="calculator">領藥計算機</button>
+            <button class="tab-btn" data-tab="import">批次匯入篩選</button>
         </div>
 
-        <div id="results" class="results-section" style="display: none;">
-            <h2>領藥時間表</h2>
-            <div id="prescriptionInfo"></div>
-            <div id="ganttChart"></div>
-            <div id="refillDetails"></div>
+        <!-- 分頁1: 領藥計算機 -->
+        <div id="tab-calculator" class="tab-content active">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="prescriptionDate">處方開立日期：</label>
+                    <input type="date" id="prescriptionDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="daysPerRefill">每次領藥天數：</label>
+                    <input type="number" id="daysPerRefill" min="28" max="30" value="28" required>
+                    <span class="hint">(28-30天)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalRefills">可領回數：</label>
+                    <input type="number" id="totalRefills" min="1" max="3" value="3" required>
+                    <span class="hint">(最多3回)</span>
+                </div>
+
+                <div id="actualDatesSection">
+                    <h3>實際領藥日期</h3>
+                    <div id="actualDatesInputs"></div>
+                </div>
+
+                <button id="calculateBtn">計算領藥時間</button>
+            </div>
+
+            <div id="results" class="results-section" style="display: none;">
+                <h2>領藥時間表</h2>
+                <div id="prescriptionInfo"></div>
+                <div id="ganttChart"></div>
+                <div id="refillDetails"></div>
+            </div>
+        </div>
+
+        <!-- 分頁2: 批次匯入篩選 -->
+        <div id="tab-import" class="tab-content">
+            <div class="input-section">
+                <h3>匯入處方資料 (DRUG2.txt)</h3>
+                <p class="import-desc">上傳健保申報檔 DRUG2.txt，自動篩選出延遲領藥的病患名單。</p>
+
+                <div class="form-group">
+                    <label for="drugFile">選擇 DRUG2.txt 檔案：</label>
+                    <input type="file" id="drugFile" accept=".txt">
+                </div>
+
+                <div class="form-group">
+                    <label>篩選條件：</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filterDelay1" checked>
+                            第一回延遲領藥（調劑序號=2，調劑日期超過預期）
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filterDelay2" checked>
+                            第二回延遲領藥（調劑序號=3，調劑日期超過預期）
+                        </label>
+                    </div>
+                </div>
+
+                <button id="importBtn">匯入並篩選</button>
+            </div>
+
+            <div id="importResults" class="results-section" style="display: none;">
+                <div class="import-summary" id="importSummary"></div>
+
+                <div class="import-filter-bar">
+                    <input type="text" id="searchInput" placeholder="搜尋姓名或身分證號...">
+                    <select id="delayTypeFilter">
+                        <option value="all">全部延遲</option>
+                        <option value="1">僅第一回延遲</option>
+                        <option value="2">僅第二回延遲</option>
+                    </select>
+                    <button id="exportCsvBtn">匯出 CSV</button>
+                </div>
+
+                <div id="importTable"></div>
+            </div>
         </div>
     </div>
 

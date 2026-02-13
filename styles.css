@@ -34,6 +34,54 @@ h1 {
     font-size: 16px;
 }
 
+/* =====================================================
+   分頁導覽
+   ===================================================== */
+
+.tab-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 30px;
+    border-bottom: 3px solid #667eea;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    background: #f0f0f0;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+}
+
+.tab-btn:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s;
+}
+
+/* =====================================================
+   原有樣式：表單、結果、甘特圖
+   ===================================================== */
+
 .input-section {
     background: #f8f9fa;
     padding: 30px;
@@ -75,6 +123,18 @@ h1 {
     max-width: 300px;
 }
 
+.form-group input[type="file"] {
+    padding: 10px;
+    border: 2px dashed #bbb;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: #667eea;
+}
+
 .hint {
     color: #888;
     font-size: 12px;
@@ -93,7 +153,8 @@ h1 {
     font-size: 18px;
 }
 
-#calculateBtn {
+#calculateBtn,
+#importBtn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
@@ -107,12 +168,14 @@ h1 {
     margin: 30px auto 0;
 }
 
-#calculateBtn:hover {
+#calculateBtn:hover,
+#importBtn:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
-#calculateBtn:active {
+#calculateBtn:active,
+#importBtn:active {
     transform: translateY(0);
 }
 
@@ -184,7 +247,7 @@ h1 {
     height: 40px;
     border-bottom: 2px solid #ddd;
     margin-bottom: 20px;
-    margin-left: 80px; /* 對齊 gantt-label 的寬度 */
+    margin-left: 80px;
 }
 
 .timeline-marker {
@@ -332,6 +395,260 @@ h1 {
     margin-bottom: 15px;
 }
 
+/* =====================================================
+   分頁2：批次匯入篩選
+   ===================================================== */
+
+.import-desc {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #444;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+    flex-shrink: 0;
+}
+
+/* 統計卡片 */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    transition: transform 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+}
+
+.summary-card.highlight {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #eef2ff 0%, #f0e6ff 100%);
+}
+
+.summary-card.warn1 {
+    border-color: #f5a623;
+    background: #fffbf0;
+}
+
+.summary-card.warn2 {
+    border-color: #f5576c;
+    background: #fff5f5;
+}
+
+.summary-number {
+    font-size: 36px;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.2;
+}
+
+.summary-card.highlight .summary-number {
+    color: #667eea;
+}
+
+.summary-card.warn1 .summary-number {
+    color: #f5a623;
+}
+
+.summary-card.warn2 .summary-number {
+    color: #f5576c;
+}
+
+.summary-label {
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+}
+
+/* 篩選列 */
+.import-filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.import-filter-bar input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.import-filter-bar input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.import-filter-bar select {
+    padding: 10px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.import-filter-bar select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+#exportCsvBtn {
+    padding: 10px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    white-space: nowrap;
+}
+
+#exportCsvBtn:hover {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+/* 資料表格 */
+.table-scroll {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.import-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.import-data-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.import-data-table th {
+    color: white;
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+.import-data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+.import-data-table tbody tr:hover {
+    background: #f0f4ff;
+}
+
+.import-data-table tbody tr.severity-high {
+    background: #fff0f0;
+}
+
+.import-data-table tbody tr.severity-high:hover {
+    background: #ffe0e0;
+}
+
+.import-data-table tbody tr.severity-mid {
+    background: #fffbf0;
+}
+
+.import-data-table tbody tr.severity-mid:hover {
+    background: #fff3d0;
+}
+
+.import-data-table .center {
+    text-align: center;
+}
+
+.import-data-table .mono {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+/* 標籤徽章 */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-warn1 {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+}
+
+.badge-warn2 {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5576c;
+}
+
+.delay-num {
+    color: #f5576c;
+    font-size: 14px;
+}
+
+.no-results {
+    text-align: center;
+    color: #888;
+    padding: 40px;
+    font-size: 16px;
+}
+
+/* =====================================================
+   響應式設計
+   ===================================================== */
+
 @media (max-width: 768px) {
     .container {
         padding: 20px;
@@ -339,6 +656,11 @@ h1 {
 
     h1 {
         font-size: 24px;
+    }
+
+    .tab-btn {
+        font-size: 14px;
+        padding: 12px 16px;
     }
 
     .gantt-label {
@@ -357,5 +679,28 @@ h1 {
     .form-group input[type="number"],
     .form-group input[type="date"] {
         max-width: 100%;
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .import-filter-bar {
+        flex-direction: column;
+    }
+
+    .import-filter-bar input[type="text"],
+    .import-filter-bar select {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .import-data-table {
+        font-size: 12px;
+    }
+
+    .import-data-table th,
+    .import-data-table td {
+        padding: 8px 10px;
     }
 }
